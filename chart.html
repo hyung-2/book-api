@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div><canvas id="myChart"></canvas></div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGQ0ODU3ZWZiOTVmZTU0NjczYTljNzQiLCJuYW1lIjoid2FhZWlwb0BnbWFpbC5jb20iLCJ1c2VySWQiOiJsa3ZncXVhIiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNjkxNjUxNjc4LCJleHAiOjE2OTE3MzgwNzgsImlzcyI6Imh5dW5nIn0.r_6q0tU0i5m9kAOySHN3C4c8HqhFat3Wy_ypcZNM7oE'
+
+    fetch('http://localhost:5100/api/books/group/category',{
+      headers:{
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log (data)
+
+        const group = data.docs
+        const ctx = document.getElementById('myChart')
+
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: group.filter(item => item._id).map(item => item._id),
+            datasets: [{
+              label: '# of Books',
+              data: group.map(item => item.count),
+              borderWidth:1,
+            }]
+          },
+          options: {
+            scales: {
+              y: {beginAtZero: true}
+            }
+          }
+        })
+      })
+  </script>
+</body>
+</html>

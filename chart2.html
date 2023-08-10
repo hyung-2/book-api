@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <!-- 토큰없이 로그인으로 차트만들기 -->
+  <div><canvas id="myChart"></canvas></div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const email = "vhsahnw@gmail.com"
+    const password = "mndbusjlcb"
+    const graphType = 'bar'
+    const field = 'category'
+
+    async function login (email, password){
+      const user = await fetch('http://localhost:5100/api/users/login', {
+        headers : { 'Content-Type': 'application/json'},
+        method: 'POST',
+        body: JSON.stringify({email, password})
+      })
+        .then(res => res.json())
+      return user
+    }
+
+    async function getGroups(field, user){
+      let baseUrl = 'http://localhost:5100/api/books/group'
+      if(!user.isAdmin){ baseUrl += '/mine'}
+      if(field === 'rentDate' || field === 'finishRentDate'){baseUrl += '/date'}
+
+      const group = await fetch(`${baseUrl}/${field}`, {
+        headers : { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        }
+      }).then(res => res.json())
+      return group
+    }
+
+    async function fetchData(email, password, field){
+      const user = await login(email, password)
+      let group = await getGroups(field, user)
+      group = group.docs
+      return group
+    }
+
+    function displayChart (type, group){
+      const ctx = document.getElementById('myChart')
+      new Chart(ctx, {
+        type,
+        data: {
+          labels: group.filter(
+            item => item._id?.year ? `${item._id.year}년 ${item._id.month}월` : item._id).map(
+            item => item._id?.year ? `${item._id.year}년 ${item._id.month}월` : item._id),
+          datasets: [{
+            label: '# of Books',
+            data: group.filter(
+              item => item._id?.year ? `${item._id.year}년 ${item._id.month}월` : item._id).map(
+              item => item.count),
+            borderWidth: 1,
+            backgroundColor: '#FFD700',
+            borderColor: '#FFD700',
+          }]
+        },
+        options: {
+          scales:{
+            y:{beginAtZero: true}
+          }
+        },
+        plugins: {
+          colors: {enabled: true}
+        }
+      })
+    }
+
+    fetchData(email, password, field)
+      .then(group => {
+        console.log(group)
+        displayChart(graphType, group)
+      })
+  </script>
+</body>
+</html>

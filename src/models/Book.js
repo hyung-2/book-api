@@ -4,11 +4,11 @@ const { Schema } = mongoose
 const { Types: { ObjectId } } = Schema
 
 const bookSchema = new Schema ({
-  // author: {
-  //   type: ObjectId,
-  //   required: true,
-  //   ref: 'User',
-  // },
+  rentUsers: [{ 
+    type : ObjectId, 
+    ref: 'User', 
+    // required: true,/
+  }],
   title: {
     type: String,
     required: true,
@@ -18,13 +18,21 @@ const bookSchema = new Schema ({
     type: String,
     trim: true,
   },
-  release:{
-    type: Number,
-    trim: true,
-  },
   grade:{
     type: Number,
     trim: true,
+  },
+  isRent: {
+    type: Boolean,
+    default: false,
+  },
+  rentDate: {
+    type: Date,
+    default: Date.now,
+  },
+  finishRentDate:{
+    type: Date,
+    default: Date.now,
   },
 })
 

@@ -65,6 +65,7 @@ router.put('/:id', expressAsyncHandler(async (req, res, next) => {
     user.name = req.body.name || user.name
     user.email = req.body.email || user.email
     user.password = req.body.password || user.password
+    user.isAdmin = req.body.isAdmin || user.isAdmin
 
     const updateUser = await user.save()
     const { name, email, userId, isAdmin, createdAt } = updateUser
